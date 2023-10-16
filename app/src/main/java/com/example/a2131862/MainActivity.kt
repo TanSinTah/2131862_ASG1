@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     }
     private fun parseJson(jsonData: String?): String {
         val jsonObject = JSONObject(jsonData)
-        val quote = jsonObject.getString("value")
+        val quote = jsonObject.getString("name")
         return quote
     }
     private fun handleRetrieveQuoteWithVolley(){
