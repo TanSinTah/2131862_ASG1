@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.android.volley.Request
+import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.a2131862.databinding.ActivityMainBinding
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity() {
             Request.Method.GET, "https://tradestie.com/api/v1/apps/reddit", null, { response ->
 
                 val jsonArray = JSONTokener(response.toString()).nextValue() as JSONArray
+
                 for (i in 0 until jsonArray.length()) {
 
                     //no of comments
@@ -56,11 +58,27 @@ class MainActivity : AppCompatActivity() {
                     //ticker
                     val ticker = jsonArray.getJSONObject(i).getString("ticker")
                     Log.i("ticker: ", ticker)
-
                 }
             },
             {error -> binding.textView.text = "That didn't work!: $error" }
         )
         queue.add(jsonObjectRequest)
     }
+    fun parseJson(jsonString: String) {
+        val jsonArray = JSONObject(jsonString)
+
+        for(i in 0 until jsonArray.length()) {
+
+            val jsonObject = jsonArray.getJSONObject(i.toString())
+
+            val noOfComments = jsonObject.getInt("no_of_comments")
+            val sentiment = jsonObject.getString("sentiment")
+            val sentimentScore = jsonObject.getDouble("sentiment_score")
+            val ticker = jsonObject.getString("ticker")
+
+            // Do something with the parsed data, e.g., print or store in a data structure
+            println("Ticker: $ticker, No. of Comments: $noOfComments, Sentiment: $sentiment, Score: $sentimentScore")
+        }
+        Log.d("Modified JSON", jsonArray.toString())
     }
+}
