@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">2131862</string>
     <string name="button">Get Quote</string>
+    <string name="proceed_to_second_activity">Proceed to Second Activity</string>
 </resources>

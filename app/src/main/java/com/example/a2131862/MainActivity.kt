@@ -1,5 +1,6 @@
 package com.example.a2131862
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -23,10 +24,16 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnQuote.setOnClickListener {
             handleRetrieveQuoteWithVolley()
+            }
+        val btnGoToSecondActivity = findViewById<Button>(R.id.btnGoToSecondActivity)
+        btnGoToSecondActivity.setOnClickListener {
+            //Create an Intent to navigate to the second activity
+            val intent = Intent(this, SecondActivity::class.java)
+            startActivity(intent)
         }
 
         val spinner = findViewById<Spinner>(R.id.spinner)
-        val items = arrayOf("", "")
+        val items = arrayOf("No Of Comment", "Sentiment","Sentiment Score","Ticker")
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -38,6 +45,7 @@ class MainActivity : AppCompatActivity() {
                 val selectedItem = items[position]
                 // Do something with the selected item
                 Toast.makeText(this@MainActivity, "Selected: $selectedItem", Toast.LENGTH_SHORT).show()
+
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
