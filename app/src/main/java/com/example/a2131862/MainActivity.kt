@@ -4,10 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
@@ -29,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val spinner = findViewById<Spinner>(R.id.spinner)
-        val items = arrayOf("no_of_comments", "sentiment", "sentiment_score", "ticker")
+        val items = arrayOf("", "")
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -50,16 +47,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun parseJson(jsonArray: JSONArray): String {
+        val resultStringBuilder = StringBuilder()
         try {
-            if (jsonArray.length() > 0) {
-                val jsonObject = jsonArray.getJSONObject(0) // Assuming you want the first object
-                val sentiment = jsonObject.getString("sentiment")
-                return "Sentiment: $sentiment"
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
+                val noOfComments = jsonObject.optInt("no_of_comments", -1)
+                val sentiment = jsonObject.optString("sentiment", "Unknown")
+                val sentimentScore = jsonObject.optDouble("sentiment_score", 0.0)
+                val ticker = jsonObject.optString("ticker", "Unknown")
+
+                // Build a result string with the parsed data
+                resultStringBuilder.append("Ticker: $ticker, No. of Comments: $noOfComments, Sentiment: $sentiment, Score: $sentimentScore\n")
             }
         } catch (e: JSONException) {
             e.printStackTrace()
+            return "JSON parsing error"
         }
-        return "Parsing error"
+
+        return resultStringBuilder.toString()
     }
 
     private fun handleRetrieveQuoteWithVolley() {
@@ -73,6 +78,7 @@ class MainActivity : AppCompatActivity() {
                         val quote = parseJson(response)
                         binding.textView.text = quote
                     } catch (e: JSONException) {
+                        Log.e("JsonParsingError", "Error parsing JSON: ${e.message}")
                         binding.textView.text = "JSON parsing error"
                     }
                 } else {
@@ -86,7 +92,29 @@ class MainActivity : AppCompatActivity() {
         )
         queue.add(jsonArrayRequest)
     }
+
+    private fun handleNetworkResponse(response: JSONArray) {
+        Log.d("VolleyResponse", "Response: $response")
+        if (response.length() > 0) {
+            try {
+                val quote = parseJson(response)
+                binding.textView.text = quote
+            } catch (e: JSONException) {
+                binding.textView.text = "JSON parsing error"
+            }
+        } else {
+            binding.textView.text = "No data found"
+        }
+    }
+
+    private fun handleNetworkError(error: Exception) {
+        Log.e("VolleyError", "Error: ${error.message}")
+        binding.textView.text = "That didn't work! Error: ${error.message}"
+    }
 }
+
+
+
 //    private fun handleRetrieveQuoteWithVolley(){
 //
 //        val queue = Volley.newRequestQueue(this)
