@@ -24,27 +24,32 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnQuote.setOnClickListener {
             handleRetrieveQuoteWithVolley()
-            }
-        val btnGoToSecondActivity = findViewById<Button>(R.id.btnGoToSecondActivity)
-        btnGoToSecondActivity.setOnClickListener {
+        }
+        binding.btnGoToSecondActivity.setOnClickListener {
             //Create an Intent to navigate to the second activity
             val intent = Intent(this, SecondActivity::class.java)
             startActivity(intent)
         }
 
-        val spinner = findViewById<Spinner>(R.id.spinner)
-        val items = arrayOf("No Of Comment", "Sentiment","Sentiment Score","Ticker")
+
+        val items = arrayOf("No Of Comment", "Sentiment", "Sentiment Score", "Ticker")
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-        spinner.adapter = adapter
+        binding.spinner.adapter = adapter
 
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 val selectedItem = items[position]
                 // Do something with the selected item
-                Toast.makeText(this@MainActivity, "Selected: $selectedItem", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Selected: $selectedItem", Toast.LENGTH_SHORT)
+                    .show()
 
             }
 
@@ -80,22 +85,20 @@ class MainActivity : AppCompatActivity() {
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET, "https://tradestie.com/api/v1/apps/reddit", null,
             { response ->
-                Log.d("VolleyResponse", "Response: $response")
                 if (response.length() > 0) {
                     try {
                         val quote = parseJson(response)
                         binding.textView.text = quote
                     } catch (e: JSONException) {
-                        Log.e("JsonParsingError", "Error parsing JSON: ${e.message}")
-                        binding.textView.text = "JSON parsing error"
+                        handleError("JSON parsing error")
                     }
                 } else {
-                    binding.textView.text = "No data found"
+                    handleError("No data found")
                 }
             },
             { error ->
-                Log.e("VolleyError", "Error: ${error.message}")
-                binding.textView.text = "That didn't work! Error: ${error.message}"
+                val errorMessage = "Error: ${error.message}"
+                handleError(errorMessage)
             }
         )
         queue.add(jsonArrayRequest)
@@ -119,10 +122,11 @@ class MainActivity : AppCompatActivity() {
         Log.e("VolleyError", "Error: ${error.message}")
         binding.textView.text = "That didn't work! Error: ${error.message}"
     }
+    private fun handleError(errorMessage: String) {
+        Log.e("VolleyError", errorMessage)
+        binding.textView.text = "Something went wrong: $errorMessage"
+    }
 }
-
-
-
 //    private fun handleRetrieveQuoteWithVolley(){
 //
 //        val queue = Volley.newRequestQueue(this)
